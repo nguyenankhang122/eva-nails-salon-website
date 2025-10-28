@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
+import { Sparkles, Palette, Zap, Hand, Droplet, Flower2 } from "lucide-react"
 
 const services = [
   {
@@ -9,36 +10,42 @@ const services = [
     name: "Manicure",
     description: "Classic and gel manicures with premium finishes",
     price: "$35-65",
+    icon: Hand,
   },
   {
     id: 2,
     name: "Pedicure",
     description: "Relaxing pedicures with therapeutic foot massage",
     price: "$45-75",
+    icon: Flower2,
   },
   {
     id: 3,
     name: "Nail Art",
     description: "Custom designs and artistic nail creations",
     price: "$50-100",
+    icon: Palette,
   },
   {
     id: 4,
     name: "Extensions",
     description: "Acrylic and gel nail extensions",
     price: "$60-120",
+    icon: Sparkles,
   },
   {
     id: 5,
     name: "Gel Polish",
     description: "Long-lasting gel polish application",
     price: "$40-70",
+    icon: Droplet,
   },
   {
     id: 6,
     name: "Spa Treatment",
     description: "Luxurious hand and foot spa treatments",
     price: "$55-85",
+    icon: Zap,
   },
 ]
 
@@ -63,7 +70,9 @@ export default function Services() {
   }, [])
 
   return (
-    <section id="services" className="py-20 bg-background">
+    <section id="services" className="py-20 bg-background relative">
+      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-4xl font-bold text-center mb-4 metallic-gold">Our Services</h2>
         <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
@@ -71,25 +80,43 @@ export default function Services() {
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((service, index) => (
-            <Card
-              key={service.id}
-              data-service-id={service.id}
-              data-service-card
-              className={`bg-card border-border hover:border-primary transition-all hover:shadow-lg duration-500 ${
-                visibleServices.includes(service.id) ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-              } p-6`}
-              style={{
-                transitionDelay: `${index * 100}ms`,
-              }}
-            >
-              <h3 className="text-xl font-semibold metallic-gold mb-2">{service.name}</h3>
-              <p className="text-muted-foreground mb-4">{service.description}</p>
-              <p className="text-lg font-bold metallic-gold">{service.price}</p>
-            </Card>
-          ))}
+          {services.map((service, index) => {
+            const IconComponent = service.icon
+            return (
+              <Card
+                key={service.id}
+                data-service-id={service.id}
+                data-service-card
+                className={`service-card-enhanced bg-card transition-all duration-500 group relative overflow-hidden ${
+                  visibleServices.includes(service.id) ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                } p-6`}
+                style={{
+                  transitionDelay: `${index * 100}ms`,
+                }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute top-0 right-0 w-20 h-20 bg-primary/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                <div className="relative z-10">
+                  <div className="mb-4 inline-block p-3 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-primary/30">
+                    <IconComponent className="w-6 h-6 text-primary group-hover:text-accent transition-colors duration-300" />
+                  </div>
+
+                  <h3 className="text-xl font-semibold metallic-gold mb-2 group-hover:text-accent transition-colors duration-300">
+                    {service.name}
+                  </h3>
+                  <p className="text-muted-foreground mb-4 group-hover:text-foreground transition-colors duration-300">
+                    {service.description}
+                  </p>
+                  <p className="text-lg font-bold metallic-gold">{service.price}</p>
+                </div>
+              </Card>
+            )
+          })}
         </div>
       </div>
+
+      <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
     </section>
   )
 }

@@ -21,7 +21,7 @@ export default function FloatingActions() {
       {/* Call Button */}
       <button
         onClick={handleCall}
-        className="flex items-center gap-2 bg-primary hover:bg-accent text-black px-4 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 font-semibold"
+        className="floating-glow flex items-center gap-2 bg-primary hover:bg-accent text-black px-4 py-3 rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-110 font-semibold"
         aria-label="Call to book appointment"
       >
         <Phone className="w-5 h-5" />
@@ -31,7 +31,7 @@ export default function FloatingActions() {
       {/* Directions Button */}
       <button
         onClick={handleDirections}
-        className="flex items-center gap-2 bg-primary hover:bg-accent text-black px-4 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 font-semibold"
+        className="floating-glow flex items-center gap-2 bg-primary hover:bg-accent text-black px-4 py-3 rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-110 font-semibold"
         aria-label="Get directions to salon"
       >
         <MapPin className="w-5 h-5" />
