@@ -1,50 +1,108 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Trash2, Edit2, Plus } from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
 
 interface Service {
-  id: number
+  id: string
   name: string
   description: string
   price: number
+  category: string
+  full_set_price?: number
+  fill_ins_price?: number
 }
 
-const initialServices: Service[] = [
-  { id: 1, name: "Manicure", description: "Classic and gel manicures", price: 50 },
-  { id: 2, name: "Pedicure", description: "Relaxing pedicures", price: 60 },
-  { id: 3, name: "Nail Art", description: "Custom designs", price: 75 },
-  { id: 4, name: "Extensions", description: "Acrylic and gel extensions", price: 90 },
-]
-
 export default function ServiceManager() {
-  const [services, setServices] = useState<Service[]>(initialServices)
-  const [editingId, setEditingId] = useState<number | null>(null)
-  const [formData, setFormData] = useState({ name: "", description: "", price: 0 })
+  const [services, setServices] = useState<Service[]>([])
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [formData, setFormData] = useState({ name: "", description: "", price: 0, category: "Manicure" })
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleAdd = () => {
-    if (formData.name && formData.price > 0) {
-      setServices([...services, { id: Date.now(), ...formData }])
-      setFormData({ name: "", description: "", price: 0 })
+  const supabase = createClient()
+
+  useEffect(() => {
+    fetchServices()
+  }, [])
+
+  const fetchServices = async () => {
+    try {
+      setIsLoading(true)
+      const { data, error } = await supabase.from("services").select("*").order("category", { ascending: true })
+
+      if (error) throw error
+      setServices(data || [])
+      setError(null)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch services")
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  const handleDelete = (id: number) => {
-    setServices(services.filter((s) => s.id !== id))
+  const handleAdd = async () => {
+    if (!formData.name || formData.price <= 0) {
+      setError("Please fill in all required fields")
+      return
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from("services")
+        .insert([{ ...formData }])
+        .select()
+
+      if (error) throw error
+      setServices([...services, data[0]])
+      setFormData({ name: "", description: "", price: 0, category: "Manicure" })
+      setError(null)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to add service")
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase.from("services").delete().eq("id", id)
+
+      if (error) throw error
+      setServices(services.filter((s) => s.id !== id))
+      setError(null)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete service")
+    }
   }
 
   const handleEdit = (service: Service) => {
     setEditingId(service.id)
-    setFormData({ name: service.name, description: service.description, price: service.price })
+    setFormData({
+      name: service.name,
+      description: service.description,
+      price: service.price,
+      category: service.category,
+    })
   }
 
-  const handleUpdate = () => {
-    if (editingId && formData.name && formData.price > 0) {
+  const handleUpdate = async () => {
+    if (!editingId || !formData.name || formData.price <= 0) {
+      setError("Please fill in all required fields")
+      return
+    }
+
+    try {
+      const { error } = await supabase.from("services").update(formData).eq("id", editingId)
+
+      if (error) throw error
       setServices(services.map((s) => (s.id === editingId ? { id: editingId, ...formData } : s)))
       setEditingId(null)
-      setFormData({ name: "", description: "", price: 0 })
+      setFormData({ name: "", description: "", price: 0, category: "Manicure" })
+      setError(null)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update service")
     }
   }
 
@@ -58,6 +116,10 @@ export default function ServiceManager() {
     </div>
   )
 
+  if (isLoading) {
+    return <div className="text-center text-muted-foreground">Loading services...</div>
+  }
+
   return (
     <div className="space-y-6">
       <Card className="bg-card border-border p-6">
@@ -65,6 +127,7 @@ export default function ServiceManager() {
           <Plus size={20} />
           {editingId ? "Edit Service" : "Add New Service"}
         </h3>
+        {error && <p className="text-destructive text-sm mb-4">{error}</p>}
         <div className="space-y-4">
           <InputField
             label="Service Name"
@@ -80,6 +143,21 @@ export default function ServiceManager() {
             value={formData.description}
             onChange={(e: any) => setFormData({ ...formData, description: e.target.value })}
           />
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">Category</label>
+            <select
+              value={formData.category}
+              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              className="w-full px-4 py-2 bg-background border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+            >
+              <option>Manicure</option>
+              <option>Pedicure</option>
+              <option>Nail Enhancement</option>
+              <option>Dipping Powder</option>
+              <option>Waxing</option>
+              <option>Additional Services</option>
+            </select>
+          </div>
           <InputField
             label="Price ($)"
             type="number"
@@ -96,7 +174,7 @@ export default function ServiceManager() {
                 <Button
                   onClick={() => {
                     setEditingId(null)
-                    setFormData({ name: "", description: "", price: 0 })
+                    setFormData({ name: "", description: "", price: 0, category: "Manicure" })
                   }}
                   variant="outline"
                 >
@@ -126,7 +204,12 @@ export default function ServiceManager() {
                   <div className="flex-1">
                     <h4 className="font-semibold text-foreground">{service.name}</h4>
                     <p className="text-sm text-muted-foreground mt-1">{service.description}</p>
-                    <p className="text-primary font-bold mt-2">${service.price.toFixed(2)}</p>
+                    <div className="flex gap-4 mt-2">
+                      <p className="text-primary font-bold">${service.price.toFixed(2)}</p>
+                      <p className="text-xs text-muted-foreground bg-background px-2 py-1 rounded">
+                        {service.category}
+                      </p>
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <Button

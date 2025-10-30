@@ -1,85 +1,62 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { createClient } from "@/lib/supabase/client"
+
+interface Service {
+  id: string
+  name: string
+  description: string
+  price: number
+  category: string
+  full_set_price?: number
+  fill_ins_price?: number
+}
 
 interface ServiceCategory {
   title: string
-  description?: string
-  services: {
-    name: string
-    price: string | { fullSet?: string; fillIns?: string }
-  }[]
-  image?: string
+  services: Service[]
 }
 
-const serviceCategories: ServiceCategory[] = [
-  {
-    title: "Pedicure",
-    services: [
-      { name: "Basic Spa Pedicure", price: "$35" },
-      { name: "Relax Spa Pedicure", price: "$45" },
-      { name: "Collagen Spa Pedicure", price: "$55" },
-      { name: "Deluxe Spa Pedicure", price: "$65" },
-      { name: "Kid's Pedicure", price: "$25" },
-    ],
-  },
-  {
-    title: "Manicure",
-    services: [
-      { name: "Classic Manicure with Regular Polish", price: "$20" },
-      { name: "Gel Manicure", price: "$35" },
-      { name: "Kid's Manicure", price: "$15" },
-      { name: "Polish Change with Trim & Shape", price: "$10" },
-      { name: "Gel Polish Change with Trim & Shape", price: "$20" },
-    ],
-  },
-  {
-    title: "Nail Enhancement",
-    services: [
-      { name: "Gel Polish", price: { fullSet: "$50", fillIns: "$45" } },
-      { name: "Color Powder", price: { fullSet: "$50", fillIns: "$45" } },
-      { name: "Ombre", price: { fullSet: "$65", fillIns: "$60" } },
-      { name: "Pink & White", price: { fullSet: "$60", fillIns: "$55" } },
-      { name: "White Tip", price: { fullSet: "$50", fillIns: "$40" } },
-      { name: "Regular Polish", price: { fullSet: "$40", fillIns: "$35" } },
-    ],
-  },
-  {
-    title: "Dipping Powder",
-    services: [
-      { name: "Dip Color", price: "$50" },
-      { name: "Dip Ombre", price: "$65" },
-      { name: "Dip French", price: "$60" },
-    ],
-  },
-  {
-    title: "Waxing",
-    services: [
-      { name: "Eyebrows", price: "$10" },
-      { name: "Upper Lip", price: "$7" },
-      { name: "Chin", price: "$8" },
-      { name: "Underarm Wax", price: "$20" },
-      { name: "Full Face", price: "$40" },
-      { name: "Arms", price: "$40" },
-      { name: "Half Leg", price: "$40" },
-      { name: "Full Leg", price: "$80" },
-    ],
-  },
-  {
-    title: "Additional Services",
-    services: [
-      { name: "Removal", price: "$5" },
-      { name: "Extra Design (Simple)", price: "$10+" },
-      { name: "Chrome", price: "$15" },
-      { name: "French (Classic)", price: "$5" },
-      { name: "French (Pink & White)", price: "$10" },
-      { name: "Cat Eye (Depending on Design)", price: "$10+" },
-    ],
-  },
-]
-
 export default function Services() {
+  const [serviceCategories, setServiceCategories] = useState<ServiceCategory[]>([])
   const [visibleCategories, setVisibleCategories] = useState<number[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  const supabase = createClient()
+
+  useEffect(() => {
+    fetchServices()
+  }, [])
+
+  const fetchServices = async () => {
+    try {
+      setIsLoading(true)
+      const { data, error } = await supabase.from("services").select("*").order("category", { ascending: true })
+
+      if (error) throw error
+
+      // Group services by category
+      const grouped = data.reduce((acc: Record<string, Service[]>, service: Service) => {
+        if (!acc[service.category]) {
+          acc[service.category] = []
+        }
+        acc[service.category].push(service)
+        return acc
+      }, {})
+
+      const categories = Object.entries(grouped).map(([title, services]) => ({
+        title,
+        services: services as Service[],
+      }))
+
+      setServiceCategories(categories)
+    } catch (error) {
+      console.error("Failed to fetch services:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -97,6 +74,16 @@ export default function Services() {
     document.querySelectorAll("[data-service-category]").forEach((el) => observer.observe(el))
     return () => observer.disconnect()
   }, [])
+
+  if (isLoading) {
+    return (
+      <section id="services" className="py-20 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-muted-foreground">Loading services...</p>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section id="services" className="py-20 bg-background relative">
@@ -126,29 +113,21 @@ export default function Services() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Services List */}
                 <div className="space-y-3">
-                  {category.services.map((service, serviceIndex) => (
+                  {category.services.map((service) => (
                     <div
-                      key={serviceIndex}
+                      key={service.id}
                       className="flex justify-between items-start p-3 rounded-lg hover:bg-primary/5 transition-colors duration-300 group"
                     >
                       <div className="flex-1">
                         <p className="text-foreground group-hover:text-primary transition-colors duration-300">
                           {service.name}
                         </p>
+                        {service.description && (
+                          <p className="text-xs text-muted-foreground mt-1">{service.description}</p>
+                        )}
                       </div>
                       <div className="text-right ml-4">
-                        {typeof service.price === "string" ? (
-                          <p className="metallic-gold font-semibold">{service.price}</p>
-                        ) : (
-                          <div className="text-sm">
-                            {service.price.fullSet && (
-                              <p className="metallic-gold font-semibold">{service.price.fullSet}</p>
-                            )}
-                            {service.price.fillIns && (
-                              <p className="text-muted-foreground text-xs">{service.price.fillIns}</p>
-                            )}
-                          </div>
-                        )}
+                        <p className="metallic-gold font-semibold">${service.price.toFixed(2)}</p>
                       </div>
                     </div>
                   ))}
