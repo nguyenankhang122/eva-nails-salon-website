@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
+import { X } from "lucide-react"
 
 interface Service {
   id: string
@@ -20,7 +21,7 @@ interface ServiceCategory {
 
 export default function Services() {
   const [serviceCategories, setServiceCategories] = useState<ServiceCategory[]>([])
-  const [visibleCategories, setVisibleCategories] = useState<number[]>([])
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   const supabase = createClient()
@@ -58,23 +59,6 @@ export default function Services() {
     }
   }
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const id = Number(entry.target.getAttribute("data-category-id"))
-            setVisibleCategories((prev) => [...new Set([...prev, id])])
-          }
-        })
-      },
-      { threshold: 0.1 },
-    )
-
-    document.querySelectorAll("[data-service-category]").forEach((el) => observer.observe(el))
-    return () => observer.disconnect()
-  }, [])
-
   if (isLoading) {
     return (
       <section id="services" className="py-20 bg-background">
@@ -84,6 +68,8 @@ export default function Services() {
       </section>
     )
   }
+
+  const selectedCategoryData = serviceCategories.find((cat) => cat.title === selectedCategory)
 
   return (
     <section id="services" className="py-20 bg-background relative">
@@ -95,61 +81,60 @@ export default function Services() {
           Discover our comprehensive range of premium nail care and spa services
         </p>
 
-        <div className="space-y-12">
-          {serviceCategories.map((category, categoryIndex) => (
-            <div
-              key={categoryIndex}
-              data-category-id={categoryIndex}
-              data-service-category
-              className={`transition-all duration-500 ${
-                visibleCategories.includes(categoryIndex) ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+        {/* Category Buttons */}
+        <div className="flex flex-wrap justify-center gap-4 mb-12">
+          {serviceCategories.map((category) => (
+            <button
+              key={category.title}
+              onClick={() => setSelectedCategory(category.title)}
+              className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${
+                selectedCategory === category.title
+                  ? "bg-primary text-background shadow-lg shadow-primary/50"
+                  : "bg-background border-2 border-primary text-primary hover:bg-primary/10"
               }`}
-              style={{
-                transitionDelay: `${categoryIndex * 100}ms`,
-              }}
             >
-              <h3 className="text-3xl font-bold metallic-gold mb-6 text-center">{category.title}</h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Services List */}
-                <div className="space-y-3">
-                  {category.services.map((service) => (
-                    <div
-                      key={service.id}
-                      className="flex justify-between items-start p-3 rounded-lg hover:bg-primary/5 transition-colors duration-300 group"
-                    >
-                      <div className="flex-1">
-                        <p className="text-foreground group-hover:text-primary transition-colors duration-300">
-                          {service.name}
-                        </p>
-                        {service.description && (
-                          <p className="text-xs text-muted-foreground mt-1">{service.description}</p>
-                        )}
-                      </div>
-                      <div className="text-right ml-4">
-                        <p className="metallic-gold font-semibold">${service.price.toFixed(2)}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Decorative Image or Placeholder */}
-                <div className="flex items-center justify-center">
-                  <div className="w-full h-64 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg flex items-center justify-center border border-primary/20">
-                    <div className="text-center">
-                      <p className="text-primary/60 text-sm">{category.title} Services</p>
-                      <p className="text-primary/40 text-xs mt-2">Premium Quality</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {categoryIndex < serviceCategories.length - 1 && (
-                <div className="mt-12 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-              )}
-            </div>
+              {category.title}
+            </button>
           ))}
         </div>
+
+        {/* Services Tab Content */}
+        {selectedCategoryData && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+            <div className="bg-background rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto relative border-2 border-primary/50">
+              <div className="sticky top-0 bg-background border-b border-primary/50 p-6 flex justify-between items-center">
+                <h3 className="text-3xl font-bold metallic-gold">{selectedCategoryData.title}</h3>
+                <button
+                  onClick={() => setSelectedCategory(null)}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X size={28} />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-4">
+                {selectedCategoryData.services.map((service) => (
+                  <div
+                    key={service.id}
+                    className="flex justify-between items-start p-4 rounded-lg hover:bg-primary/5 transition-colors duration-300 group border border-primary/20 hover:border-primary/50"
+                  >
+                    <div className="flex-1">
+                      <p className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors duration-300">
+                        {service.name}
+                      </p>
+                      {service.description && (
+                        <p className="text-sm text-muted-foreground mt-2">{service.description}</p>
+                      )}
+                    </div>
+                    <div className="text-right ml-6">
+                      <p className="metallic-gold font-bold text-lg">${service.price.toFixed(2)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
