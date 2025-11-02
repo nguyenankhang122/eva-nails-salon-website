@@ -1,6 +1,17 @@
 "use client"
 import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { supabase } from "@/lib/supabase/client"
+import Link from "next/link"
+
+interface GalleryImage {
+  id: string
+  title: string
+  description?: string
+  image_url: string
+  category: string
+}
 
 const galleryItems = [
   { id: 1, title: "Classic Red", category: "Manicure" },
@@ -13,6 +24,9 @@ const galleryItems = [
 
 export default function Gallery() {
   const [visibleItems, setVisibleItems] = useState<number[]>([])
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -30,6 +44,25 @@ export default function Gallery() {
     document.querySelectorAll("[data-gallery-item]").forEach((el) => observer.observe(el))
     return () => observer.disconnect()
   }, [])
+
+  const fetchGalleryImages = async () => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const { data, error: fetchError } = await supabase
+        .from("gallery_images")
+        .select("*")
+        .order("display_order", { ascending: true })
+
+      if (fetchError) throw fetchError
+      setGalleryImages(data || [])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load gallery images")
+      console.error("[v0] Gallery fetch error:", err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <section id="gallery" className="py-20 bg-card">
@@ -65,6 +98,14 @@ export default function Gallery() {
               </div>
             </Card>
           ))}
+        </div>
+
+        <div className="flex justify-center mt-12">
+          <Link href="/gallery">
+            <Button className="bg-primary hover:bg-primary/80 text-background px-8 py-2 rounded-lg font-semibold transition-all duration-300">
+              View All Gallery
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

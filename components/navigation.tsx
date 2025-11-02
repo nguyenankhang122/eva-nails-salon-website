@@ -10,7 +10,7 @@ export default function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const menuItems = [
     { label: "Services", href: "#services" },
-    { label: "Gallery", href: "#gallery" },
+    { label: "Gallery", href: "/gallery" },
     { label: "About", href: "#about" },
     { label: "Contact", href: "#contact" },
     { label: "Admin", href: "/admin", isButton: true },
@@ -22,14 +22,11 @@ export default function Navigation() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3">
-            <Image
-              src="/logo.png"
-              alt="Eva Nails & Spa Logo"
-              width={40}
-              height={40}
-              className="h-10 w-10"
-            />
-            <span> <h1 className="text-2xl">Eva Nails</h1></span>
+            <Image src="/logo.png" alt="Eva Nails & Spa Logo" width={40} height={40} className="h-10 w-10" />
+            <span>
+              {" "}
+              <h1 className="text-2xl">Eva Nails</h1>
+            </span>
           </Link>
 
           {/* Desktop Menu */}
@@ -37,23 +34,15 @@ export default function Navigation() {
             {menuItems.map((item) =>
               item.isButton ? (
                 <Link key={item.label} href={item.href}>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="bg-transparent text-foreground hover:bg-primary/10"
-                  >
+                  <Button variant="outline" size="sm" className="bg-transparent text-foreground hover:bg-primary/10">
                     {item.label}
                   </Button>
                 </Link>
               ) : (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="hover:text-primary transition-colors duration-300"
-                >
+                <Link key={item.label} href={item.href} className="hover:text-primary transition-colors duration-300">
                   {item.label}
                 </Link>
-              )
+              ),
             )}
           </div>
 
@@ -68,18 +57,18 @@ export default function Navigation() {
 
         {/* Mobile Menu */}
         <div
-          className={`md:hidden overflow-hidden transition-all duration-500 ease-in-out transform ${mobileMenuOpen
-              ? "max-h-96 opacity-100 translate-y-0"
-              : "max-h-0 opacity-0 -translate-y-4"
-            }`}
+          className={`md:hidden overflow-hidden transition-all duration-500 ease-in-out transform ${
+            mobileMenuOpen ? "max-h-96 opacity-100 translate-y-0" : "max-h-0 opacity-0 -translate-y-4"
+          }`}
         >
           <div className="flex flex-col px-4 pb-4 space-y-2 bg-background">
             {menuItems.map((item, i) => (
               <Link
                 key={item.label}
                 href={item.href}
-                className={`block py-2 rounded-md text-center transition-opacity duration-500 ${mobileMenuOpen ? "opacity-100" : "opacity-0"
-                  }`}
+                className={`block py-2 rounded-md text-center transition-opacity duration-500 ${
+                  mobileMenuOpen ? "opacity-100" : "opacity-0"
+                }`}
                 style={{ transitionDelay: `${i * 100}ms` }} // stagger effect
               >
                 {item.isButton ? (
