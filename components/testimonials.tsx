@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useState } from "react"
 
@@ -49,7 +49,7 @@ export default function Testimonials() {
       <div className="absolute bottom-10 right-10 w-32 h-32 border-2 border-primary/10 rounded-full opacity-20" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <h2 className="text-4xl font-bold text-center mb-4 metallic-gold">Client Testimonials</h2>
+        <h2 className="text-4xl font-bold text-center mb-4 ">Client Testimonials</h2>
         <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
           Hear from our satisfied clients about their experience at Eva Nails
         </p>
@@ -60,9 +60,8 @@ export default function Testimonials() {
               key={testimonial.id}
               data-testimonial-id={testimonial.id}
               data-testimonial-card
-              className={`testimonial-frame transition-all duration-500 group ${
-                visibleTestimonials.includes(testimonial.id) ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-              }`}
+              className={`testimonial-frame transition-all duration-500 group ${visibleTestimonials.includes(testimonial.id) ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                }`}
               style={{
                 transitionDelay: `${index * 100}ms`,
               }}

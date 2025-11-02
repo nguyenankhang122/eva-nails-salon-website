@@ -1,11 +1,15 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 
 export default function Hero() {
   const [scrollY, setScrollY] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
+  const handleCall = () => {
+    window.location.href = "tel:(830)701-8162"
+  }
 
   useEffect(() => {
     setIsVisible(true)
@@ -15,7 +19,7 @@ export default function Hero() {
   }, [])
 
   return (
-    <section className="relative min-h-screen bg-gradient-to-b from-background via-background to-card pt-20 overflow-hidden">
+    <section className="relative min-h-screen bg-gradient-to-b from-background via-background to-card overflow-hidden pt-0 sm:pt-20">
       <div
         className="absolute inset-0 opacity-10"
         style={{
@@ -56,7 +60,17 @@ export default function Hero() {
       />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-screen flex flex-col justify-center items-center text-center">
-        <h1 className={`text-5xl md:text-7xl font-bold mb-6 text-shimmer ${isVisible ? "float-in" : "opacity-0"}`}>
+        <div className="flex justify-center">
+          <Image
+            src="/logo.png"
+            alt="Eva Nails & Spa Logo"
+            width={400}
+            height={400}
+            quality={100}
+            className="w-full max-w-[400px] sm:max-w-[400px] md:max-w-[400px] object-contain"
+          />
+        </div>
+        <h1 className="text-5xl md:text-7xl font-bold mb-6 btn bg-clip-text text-transparent">
           Eva Nails Salon
         </h1>
         <p
@@ -73,11 +87,10 @@ export default function Hero() {
           }`}
           style={{ transitionDelay: "400ms" }}
         >
-          <Button size="lg" className="bg-primary hover:bg-primary/90 glow-shine">
-            Book Appointment
-          </Button>
-          <Button size="lg" variant="outline">
-            Learn More
+          <Button
+            onClick={handleCall}
+            size="lg">
+              Call to Book Appointment
           </Button>
         </div>
       </div>

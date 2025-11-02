@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   title: "Eva Nails Salon - Luxury Nail Care",
   description:
     "Experience luxury nail care at Eva Nails Salon. Premium services, expert technicians, and elegant ambiance.",
-  generator: "v0.app",
+  generator: "vercel.app",
 }
 
 export default function RootLayout({
