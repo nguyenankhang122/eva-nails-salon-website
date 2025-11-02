@@ -7,13 +7,14 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import ServiceManager from "@/components/admin/service-manager"
+import GalleryManager from "@/components/admin/gallery-manager"
 import { DollarSign, Settings, LogOut } from "lucide-react"
 
 export default function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [pinInput, setPinInput] = useState("")
   const [pinError, setPinError] = useState("")
-  const [activeTab, setActiveTab] = useState<"services">("services")
+  const [activeTab, setActiveTab] = useState<"services" | "gallery">("services")
 
   const handlePinSubmit = () => {
     if (pinInput === "1234") {
@@ -73,14 +74,11 @@ export default function AdminDashboard() {
       <nav className="bg-card border-b border-border sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-3">
-            <Image
-              src="/logo.png"
-              alt="Eva Nails & Spa Logo"
-              width={40}
-              height={40}
-              className="h-10 w-10"
-            />
-            <span> <h1 className="text-2xl">Eva Nails Admin</h1></span>
+            <Image src="/logo.png" alt="Eva Nails & Spa Logo" width={40} height={40} className="h-10 w-10" />
+            <span>
+              {" "}
+              <h1 className="text-2xl">Eva Nails Admin</h1>
+            </span>
           </Link>
           <div className="flex gap-4">
             <Link href="/">
@@ -129,9 +127,22 @@ export default function AdminDashboard() {
             <Settings className="w-4 h-4 mr-2" />
             Manage Services
           </Button>
+          <Button
+            onClick={() => setActiveTab("gallery")}
+            variant="ghost"
+            className={`rounded-none border-b-2 transition-all ${
+              activeTab === "gallery"
+                ? "border-primary bg-transparent text-primary"
+                : "border-transparent text-muted-foreground"
+            }`}
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            Manage Gallery
+          </Button>
         </div>
 
         {activeTab === "services" && <ServiceManager />}
+        {activeTab === "gallery" && <GalleryManager />}
       </div>
     </div>
   )
