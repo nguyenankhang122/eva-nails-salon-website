@@ -70,9 +70,7 @@ export default function Hero() {
             className="w-full max-w-[400px] sm:max-w-[400px] md:max-w-[400px] object-contain"
           />
         </div>
-        <h1 className="text-5xl md:text-7xl font-bold mb-6 btn bg-clip-text text-transparent">
-          Eva Nails Salon
-        </h1>
+        <h1 className="text-5xl md:text-7xl font-bold mb-6">Eva Nails Salon</h1>
         <p
           className={`text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl transition-all duration-700 ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
@@ -87,10 +85,8 @@ export default function Hero() {
           }`}
           style={{ transitionDelay: "400ms" }}
         >
-          <Button
-            onClick={handleCall}
-            size="lg">
-              Call to Book Appointment
+          <Button onClick={handleCall} size="lg">
+            Call to Book Appointment
           </Button>
         </div>
       </div>
